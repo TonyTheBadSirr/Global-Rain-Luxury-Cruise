@@ -1,0 +1,841 @@
+# Global-Rain-Luxury-Cruise
+IT -145 Java
+package com.Williford;
+
+import java.util.ArrayList; // Used to store data below
+import java.util.Scanner; // A necessary tool for user Input
+
+public class Driver {
+
+                                                                    // The below arrays are used for:
+    private static ArrayList<Ship> shipList = new ArrayList();  // To store the shipList data
+    private static ArrayList<Cruise> cruiseList = new ArrayList();  // To store the cruiseList data
+    private static ArrayList<Passenger> passengerList = new ArrayList();  // To store the passengerList data
+
+
+
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in); // Scanner for user input
+
+
+        initializeShipList();       // initial ships
+        initializeCruiseList();     // initial cruises
+        initializePassengerList();  // initial passengers
+
+        displayMenu(); //This calls the displayMenu Method
+
+        String userChoice = scnr.next().toUpperCase(); // This allows the Scanner to uppercase all input in this instance
+        scnr.nextLine(); // This calls the nextLine() function for the Scanner
+
+        while(!userChoice.equalsIgnoreCase("X")) { // This is used to check Strings in a "Case" insensitive way
+                                                        // the switch statement with break if x is entered
+            try { // the beginning of my exception try call
+                switch(userChoice) { // a switch statement to easily call the function needed by entering a number
+                    case "1":
+                        addShip(scnr); // adds a ship with the users input as the initialzation
+                        break;
+                    case "2":
+                        editShip(); // edits a ship
+                        break;
+                    case "3":
+                        if(shipAvailable()) { // Checks to see if the desired ship is available
+                            addCruise(scnr); // adds a cruise dependent on the users input
+                        }
+                        else {
+                            System.out.println("No ships available at this time."); // a secondary avenue if "if" is false
+                        }
+                        break;
+                    case "4":
+                        editCruise(); // allows the customization of a cruise via edit
+                        break;
+                    case "5":
+                        addPassenger(); // To add an additional passenger
+                        break;
+                    case "6":
+                        editPassenger(); // To edit a current passenger
+                        break;
+                    case "A":
+                        printShipList("name"); // Runs the printShipList method
+                        break;
+                    case "B":
+                        printShipList("ready"); // Shows available ships by way of ready
+                        break;
+                    case "C":
+                        printShipList("Maximum Capacity"); // displays maximum capacity via printShipList
+                        break;
+                    case "D":
+                        printCruiseList("list"); // Shows the cruiseList list
+                        break;
+                    case "E":
+                        printCruiseList("details"); // shows the cruiseList details
+                        break;
+                    case "F":
+                        printPassengerList(); // displays passenger list
+                        break;
+                    case "X": // quits the system
+                        break;
+                    default:
+                        throw new Exception("That was an invalid entry, please try another.");
+                }           // this throws the above message, if any exception is reached during the switch-statement
+            }
+            catch (Exception e) {
+                System.out.println(e.getMessage()); // This displays the Exception message
+            }
+
+            displayMenu();
+            userChoice = scnr.next().toUpperCase(); // these 3 lines simply send the user back to the original menu if the
+            scnr.nextLine();                        // Exception is reached
+        }
+        System.out.println("Thank you for using Global Rain Luxury Ocean Cruise Outings.");
+        System.out.println("Come again any time."); // This is the outgoing message
+        scnr.close(); // This is to help prevent any data loss, its better just to close the scanner.
+        return;
+    }
+
+    // hardcoded ship data for testing
+    // Initialize ship list
+    public static void initializeShipList() {
+        add("Candy Cane", 20, 40, 10, 60, true);
+        add("Peppermint Stick", 10, 20, 5, 40, true);
+        add("Bon Bon", 12, 18, 2, 24, false);
+        add("Candy Corn", 12, 18, 2, 24, false);
+    }
+
+    // hardcoded cruise data for testing
+    // Initialize cruise list
+    public static void initializeCruiseList() {
+        Cruise newCruise = new Cruise("Southern Swirl", "Candy Cane", "Miami", "Cuba", "Miami");
+        cruiseList.add(newCruise);
+
+        Cruise newCruiseTwo = new Cruise("Eastern GettaWay", "Bon Bon", "California", "Hampsterdam", "California");
+        cruiseList.add(newCruiseTwo);
+
+        Cruise newCruiseThree = new Cruise("Western KnockAround", "Candy Corn", "E. Texas", "Norway", "S. Texas");
+        cruiseList.add(newCruiseThree);
+    }
+
+    // hardcoded cruise data for testing
+    // Initialize passenger list
+    public static void initializePassengerList() {
+        Passenger newPassenger1 = new Passenger("Neo Anderson", "Southern Swirl", "STE");
+        passengerList.add(newPassenger1);
+
+        Passenger newPassenger2 = new Passenger("Trinity", "Southern Swirl", "STE");
+        passengerList.add(newPassenger2);
+
+        Passenger newPassenger3 = new Passenger("Morpheus", "Southern Swirl", "BAL");
+        passengerList.add(newPassenger3);
+    }
+
+    // This method is to add the shipList to the corresponding Arraylist
+    public static void add(String tName, int tBalcony, int tOceanView,
+                           int tSuite, int tInterior, boolean tInService) {
+        Ship newShip = new Ship(tName, tBalcony, tOceanView, tSuite, tInterior, tInService);
+        shipList.add(newShip);
+    }
+
+
+    public static void printShipList(String listType) {
+        // printShipList() method prints list of ships from the
+        // shipList ArrayList. There are three different outputs
+        // based on the listType String parameter:
+        // name - prints a list of ship names only
+        // active - prints a list of ship names that are "in service"
+        // full - prints tabbed data on all ships
+
+        if (shipList.size() < 1) { //This displays the below message when there are no ships to be displayed
+            System.out.println("\nThere are no ships to print.");
+            return;
+        }
+        if (listType == "name") { //Corresponds with the above switch statement, "Case "A"
+            System.out.println("\n\nSHIP LIST - Name");
+            for (int i = 0; i < shipList.size(); i++) { //Simple array function to display the per index marker
+                System.out.println(shipList.get(i));
+            }
+        } else if (listType == "active") {
+            System.out.println("\n\nSHIP LIST - Active");
+
+            // complete this code block
+
+
+        } else if (listType == "full") {
+            System.out.println("\n\nSHIP LIST - Full");
+            System.out.println("-----------------------------------------------");
+            System.out.println("                    Number of Rooms     In");
+            System.out.print("SHIP NAME           Bal OV  Ste Int     Service");
+            System.out.println("\n-----------------------------------------------");
+            for (Ship eachShip: shipList)
+                eachShip.printShipData();
+
+        } else
+            System.out.println("\n\nError: List type not defined.");
+    }
+
+    public static void printCruiseList(String listType) {
+        if (cruiseList.size() < 1) {
+            System.out.println("\nThere are no cruises to print.");
+            return;
+        }
+        if (listType == "list") {
+            System.out.println("\n\nCRUISE LIST");
+            for (int i=0; i < cruiseList.size(); i++) {
+                System.out.println(cruiseList.get(i));
+            }
+        } else if (listType == "details") {
+            System.out.println("\n\nCRUISE LIST - Details");
+            System.out.println("------------------------------------------------------------------------------------------");
+            System.out.println("                                      |----------------------PORTS-----------------------|");
+            System.out.print("CRUISE NAME         SHIP NAME           DEPARTURE           DESTINATION         RETURN");
+            System.out.println("\n-----------------------------------------------------------------------------------------");
+            for (Cruise eachCruise: cruiseList)
+                eachCruise.printCruiseDetails();
+        } else
+            System.out.println("\n\nError: List type not defined.");
+    }
+
+    public static void printPassengerList() {
+        if (passengerList.size() < 1) {
+            System.out.println("\nThere are no passengers to print.");
+            return;
+        }
+        System.out.println("\n\nPASSENGER LIST");
+        System.out.println("-----------------------------------------------------");
+        System.out.print("PASSENGER NAME      CRUISE              ROOM TYPE");
+        System.out.println("\n-----------------------------------------------------");
+        for (Passenger eachPassenger: passengerList)
+            eachPassenger.printPassenger();
+    }
+
+    // display text-based menu
+    public static void displayMenu() {
+
+        System.out.println("\n\n");
+        System.out.println("\t\t\tLuxury Ocean Cruise Outings");
+        System.out.println("\t\t\t\t\tSystem Menu\n");
+        System.out.println("[1] Add Ship            [A] Print Ship Names");
+        System.out.println("[2] Edit Ship           [B] Print Ship In Service List");
+        System.out.println("[3] Add Cruise          [C] Print Ship Full List");
+        System.out.println("[4] Edit Cruise         [D] Print Cruise List");
+        System.out.println("[5] Add Passenger       [E] Print Cruise Details");
+        System.out.println("[6] Edit Passenger      [F] Print Passenger List");
+        System.out.println("[x] Exit System");
+        System.out.println("\nEnter a menu selection: ");
+    }
+
+    public static int validatedRoomCheck(Scanner scnr, String roomType) {
+
+        boolean validEntry;         // This gives direction through the boolean variable
+        int roomCount = 0;          // This stores the room count, and is set to ZERO for validity, and security
+
+        String stringRoomCount;   // String variable to hold user input for parsing and conversion
+
+        do { // This begins the do while loop for the custom validatedRoomCheck method, it is designed to assist with the below
+            validEntry = true; // Boolean set to true
+            try { // Begins a new try catch to assist with bad inputs with Exceptions
+                System.out.println("Enter number of " + roomType + " rooms."); // Assists with the addShip method
+                //This converts the users input into a string to be later used in parsing
+                stringRoomCount = scnr.nextLine(); // Initializes the roomCount with user input
+
+                roomCount = Integer.parseInt(stringRoomCount); // uses parseInt to make the int available with a string
+
+                if (roomCount < 0) { // If the room count is entered as 0 or below
+                    throw new Exception("There is no such thing as negative amount of rooms, minimum is 0(Zero).");
+                }   //begins new throw
+            }
+
+            catch (Exception e) { // the catch is set to any exceptions
+                System.out.println("Exception due to a bad value" + e.getMessage()); // gives string + exception message
+                validEntry = false; // sets boolean to false
+            }
+        } while (!validEntry); // while NOT validEntry
+
+        return roomCount;
+    }
+
+
+    // Add a New Ship
+    public static void addShip(Scanner scnr) {
+
+        String shipName = ""; // Declares an empty string to be decalred as needed
+        int roomBalcony;
+        int roomSuite;
+        int roomInterior;
+        int roomOceanView;
+        String inServiceInput;
+
+        boolean inService = false; // new boolean set to false, to assist with the below
+        boolean validEntry; // reinitialized the validEntry boolean
+
+        do { // begins another do while loop for addShip
+            validEntry = true; // validates the boolean to true
+            try { // begins new try catch exception
+                System.out.println("Please, enter a ship name: \n"); //Displays the beginning message for addShip
+                shipName = scnr.nextLine(); // begins new user input
+
+                for(int i = 0; i < shipList.size(); ++i) { // simple function to display shipList
+                    if(shipName.equalsIgnoreCase(shipList.get(i).getShipName())) {
+                        throw new Exception("The ship name entered already exists, please enter another *must be unique*");
+                    }
+                }
+                if(shipName.isEmpty() || shipName.isBlank()){
+                    throw new Exception("That was an invalid entry, please try another ship name.");
+                }
+            }
+            catch(Exception e) { // catch message that delivers
+                System.out.println("Exception due to a bad value: " + e.getMessage());
+                validEntry = false; // the catch portion of the try catch that displays the above string plus the exception
+            }   // validates the boolean to false
+
+        }while(!validEntry); //while the validEntry boolean is not equal too
+        roomBalcony = validatedRoomCheck(scnr, "balcony");
+        roomOceanView = validatedRoomCheck(scnr, "ocean view");
+        roomSuite = validatedRoomCheck(scnr, "suite");
+        roomInterior = validatedRoomCheck(scnr, "interior");
+
+        do{ // begins the do while loop
+            validEntry = true; // validates the boolean to true
+            try { // begins a new try catch exception
+                System.out.println("Is this ship ready for active cruise detail? (Y) for yes, (N) for no");
+                inServiceInput = scnr.nextLine(); // after the above string is displayed the inServiceInput passes to an input
+                if(!inServiceInput.equalsIgnoreCase("Y") && !inServiceInput.equalsIgnoreCase("N")) {
+                    throw new Exception("Please enter (Y) for yes, or (N) for no.");
+                    // the above if statement, and the throw new, is initialized when the input is not "Y" or "N"
+                }
+                else { // else validates to false
+                    inService = false;
+
+                }
+
+            } catch(Exception e) { // catchs the exception and prints the below message alongside the exception message
+                System.out.println("That was an invalid entry. " + e.getMessage());
+                validEntry = false; // validates this boolean to false
+            }
+        }while(!validEntry); // while validEntry is not equal too
+
+        add(shipName, roomBalcony, roomOceanView, roomSuite, roomInterior, inService);
+        return;
+    }
+
+    // Edit an existing ship
+    public static void editShip() {
+
+        // This method does not need to be completed
+        System.out.println("The \"Edit Ship\" feature is not yet implemented.");
+
+    }
+    // The below works the same as the above method for "validatedRoomCheck()"
+    public static String validStringChecker(Scanner scnr, String fieldName) {
+        // method variables
+        boolean validEntry;
+        String userInput = "";
+
+        do {
+            validEntry = true;
+            try {
+                System.out.println("Enter " + fieldName + ".");
+                userInput = scnr.nextLine();
+                if (userInput.isEmpty() || userInput.isBlank()) {
+                    throw new Exception("That was an invalid entry, please try another, your input cannot be blank. \n");
+                }
+            } catch (Exception e) {
+                System.out.println("Exception due to a bad value: " + e.getMessage());
+                validEntry = false;
+            }
+        } while (!validEntry);
+
+        return userInput;
+    }
+    public static boolean hasCruise(String shipName) {
+        boolean shipHasCruise = false;
+        for (int i = 0; i < cruiseList.size(); ++i) {
+            if (shipName.equalsIgnoreCase(cruiseList.get(i).getCruiseShipName())) {
+                shipHasCruise = true;
+            }
+        }
+        return shipHasCruise;
+    }
+
+    // Method to determine whether a ship is available to
+    // add a cruise to
+    public static boolean shipAvailable() {
+        boolean shipAvailable;                      // boolean flag variable to return
+
+        int availableShipCount = 0;                 // assume no ships are available to start
+        // counter will increment if ship is in service
+        // and not assigned to a cruise
+
+        boolean shipAssigned = false;               // boolean flag to check to depict whether
+        // the ship is already assigned to a cruise
+        // initialized for compilation, assume ship is not
+        // assigned to a cruise
+        // for each ship in shipList, if that ship is
+        // not assigned to a cruise and is in service
+        // increment the available ship counter
+        for(int i = 0; i < shipList.size(); ++i) {
+            // check to see if the ship is in service
+            // if it is, loop through cruiseList to see if it's
+            // already assigned.  If it's not, increase available ship count
+            if (shipList.get(i).getInService()) {
+                for (int j = 0; j < cruiseList.size(); ++j) {
+                    // use method chaining to compare the ship name to the cruise ship name
+                    if (shipList.get(i).getShipName().equalsIgnoreCase(cruiseList.get(j).getCruiseShipName())) {
+                        shipAssigned = true;
+                    }
+                }
+                if (!shipAssigned) {
+                    availableShipCount++;
+                }
+            }
+            shipAssigned = false;
+        }
+
+        if (availableShipCount > 0) {
+            shipAvailable = true;
+        }
+        else {
+            shipAvailable = false;
+        }
+
+        return shipAvailable;
+    }
+
+    public static void addCruise(Scanner scnr) {
+
+        String cruiseName = "";
+        String cruiseShipName = "";
+        String departurePort = "";
+        String destination = "";
+        String returnPort = "";
+        boolean validEntry;         // This steers the validity by way of a boolean variable
+        int shipValidityCount;         //if the value is > 0, than we can work with it, this occurs only with unique values
+        boolean shipInService;      // boolean variable to drive validation loops
+        // based on whether the ship is in service, available for cruises
+        boolean shipHasCruise;      // boolean variable to drive validation loops
+        // based on whether the ship provided is already assigned to a cruise
+
+        // ensure the cruise does not already exist in the system
+        // Prompt user to input the Cruise's name
+        // Implement a do-while loop with exception handling to ensure input is valid
+        // and any exceptions are handled
+        do {
+            validEntry = true;
+            try {
+                System.out.println("Please enter the cruise name: ");
+                // Store the user input as String in cruiseName variable
+                // method assumes no constraints on cruiseName other
+                // than uniqueness; only validation of uniqueness is implemented
+                cruiseName = scnr.nextLine();
+
+                // loop through the existing cruiseList array
+                // if a cruise with the same name exists throw an exception
+                for (int i = 0; i < cruiseList.size(); ++i) {
+                    // use method chaining to retrieve the Cruise object
+                    // in the cruiseList ArrayList for each iteration and
+                    // compare cruiseName values to determine whether
+                    // the user's entry is unique
+                    if (cruiseName.equalsIgnoreCase(cruiseList.get(i).getCruiseName())) {
+                        throw new Exception("That was an invalid entry, please try another, *must be unique*");
+                    }
+                }
+                // throw an exception is no name is provided
+                if (cruiseName.isEmpty() || cruiseName.isBlank()) {
+                    throw new Exception("That was an invalid entry, please try another cruise name: \n");
+                }
+            }
+            catch (Exception e) {
+                System.out.println("Exception due to a bad value: " + e.getMessage());
+                validEntry = false;
+            }
+        } while (!validEntry);
+
+
+        departurePort = validStringChecker(scnr, "departure port");
+        destination = validStringChecker(scnr, "cruise destination");
+        returnPort = validStringChecker(scnr, "return port");
+
+        do {
+            validEntry = true;
+            try {
+                shipValidityCount = 0;
+                shipInService = false;
+                shipHasCruise = false;
+                cruiseShipName = validStringChecker(scnr, "cruise ship name");
+                for (int i = 0; i < shipList.size(); ++i) {
+
+                    if (cruiseShipName.equalsIgnoreCase(shipList.get(i).getShipName())) {
+                        shipValidityCount ++;
+
+                        if (shipList.get(i).getInService()) {
+                            shipInService = true;
+                        }
+
+                        shipHasCruise = hasCruise(cruiseShipName);
+                    }
+                }
+                if (shipValidityCount == 0) {
+                    throw new Exception ("Invalid ship name entry.  Please enter a valid ship name.");
+                }
+                if (!shipInService) {
+                    throw new Exception("Invalid ship entry.  Ship is not in service.  Please enter a valid ship.");
+                }
+                if (shipHasCruise) {
+                    throw new Exception("Invalid ship entry. Ship is already assigned to a cruise.  Please enter a valid ship.");
+                }
+            }
+            catch (Exception excpt) {
+                System.out.println("Bad value exception. " + excpt.getMessage());
+                validEntry = false;
+            }
+        } while (!validEntry);
+
+        // add the new cruise to the cruiseList ArrayList
+        // adds a new Cruise object, includes all class variables, updates appropriate ArrayList
+        Cruise newCruise = new Cruise(cruiseName, cruiseShipName, departurePort, destination, returnPort);
+        cruiseList.add(newCruise);
+
+        return;
+    }
+
+
+    // Edit an existing cruise
+    public static void editCruise() {
+
+        // This method does not need to be completed
+        System.out.println("The \"Edit Cruise\" feature is not yet implemented.");
+
+    }
+
+    // Add a New Passenger
+    public static void addPassenger() {
+
+        Scanner newPassengerInput = new Scanner(System.in);
+        System.out.println("Enter the new passenger's name: ");
+        String newPassengerName = newPassengerInput.nextLine();
+
+        // ensure new passenger name does not already exist
+        for (Passenger eachPassenger: passengerList) {
+            if (eachPassenger.getPassengerName().equalsIgnoreCase(newPassengerName)) {
+                System.out.println("That passenger is already in the system. Exiting to menu...");
+                return; // quits addPassenger() method processing
+            }
+        }
+
+        // get cruise name for passenger
+        System.out.println("Enter cruise name: ");
+        String newCruiseName = newPassengerInput.nextLine();
+
+        // ensure cruise exists
+        for (Cruise eachCruise: cruiseList) {
+            if (eachCruise.getCruiseName().equalsIgnoreCase(newCruiseName)) {
+                // cruise does exist
+            } else {
+                System.out.println("That cruise does not exist in the system. Exiting to menu...");
+                return; // quits addPassenger() method processing
+            }
+        }
+
+        // get room type
+        System.out.println("Enter Room Type (BAL, OV, STE, or INT: ");
+        String room = newPassengerInput.nextLine();
+        // validate room type
+        if ((room.equalsIgnoreCase("BAL")) || (room.equalsIgnoreCase("OV")) ||
+                (room.equalsIgnoreCase("STE")) || (room.equalsIgnoreCase("INT"))) {
+            // validation passed - add passenger
+            Passenger newPassenger = new Passenger(newPassengerName, newCruiseName, room.toUpperCase());
+            passengerList.add(newPassenger);
+        } else {
+            System.out.println("Invalid input. Exiting to menu...");
+            return; // quits addPassenger() method processing
+        }
+    }
+
+    // Edit an existing passenger
+    public static void editPassenger() {
+
+        // This method does not need to be completed
+        System.out.println("The \"Edit Passenger\" feature is not yet implemented.");
+
+    }
+
+    // Method to check if input is a number
+    public static boolean isANumber(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (Character.isDigit(str.charAt(i)) == false)
+                return false;
+        }
+        return true;
+    }
+
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+package com.Williford;
+public class Ship {
+
+    // Instance Variables
+    private String shipName;
+    private int roomBalcony;
+    private int roomOceanView;
+    private int roomSuite;
+    private int roomInterior;
+    private boolean inService;
+
+    // Constructor - default
+    Ship() {
+    }
+
+    // Constructor - full
+    Ship(String tName, int tBalcony, int tOceanView,
+         int tSuite, int tInterior, boolean tInService) {
+        shipName = tName;
+        roomBalcony = tBalcony;
+        roomOceanView = tOceanView;
+        roomSuite = tSuite;
+        roomInterior = tInterior;
+        inService = tInService;
+    }
+
+    // Accessors
+    public String getShipName() {
+        return shipName;
+    }
+
+    public int getRoomBalcony() {
+        return roomBalcony;
+    }
+
+    public int getRoomOceanView() {
+        return roomOceanView;
+    }
+
+    public int getRoomSuite() {
+        return roomSuite;
+    }
+
+    public int getRoomInterior() {
+        return roomInterior;
+    }
+
+    public boolean getInService() {
+        return inService;
+    }
+
+    // Mutators
+    public void setShipName(String tVar) {
+        shipName = tVar;
+    }
+
+    public void setRoomBalcony(int tVar) {
+        roomBalcony = tVar;
+    }
+
+    public void setRoomOceanView(int tVar) {
+        roomOceanView = tVar;
+    }
+
+    public void setRoomSuite(int tVar) {
+        roomSuite = tVar;
+    }
+
+    public void setRoomInterior(int tVar) {
+        roomInterior = tVar;
+    }
+
+    public void setInService(boolean tVar) {
+        inService = tVar;
+    }
+
+    // print method
+    public void printShipData() {
+        int spaceCount;
+        String spaces = "";
+        spaceCount = 20 - shipName.length();
+
+        for (int i = 1; i <= spaceCount; i++) {
+            spaces = spaces + " ";
+        }
+
+        System.out.println(shipName + spaces + roomBalcony + "\t" +
+                roomOceanView + "\t" + roomSuite + "\t" +
+                roomInterior + "\t\t" + inService);
+    }
+
+    // method added to print ship's name vice memory address
+    @Override
+    public String toString() {
+        return shipName;
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+package com.Williford;
+public class Passenger {
+
+    // Instance variables
+    private String passengerName;
+    private String passengerCruise;
+    private String passengerRoomType;
+
+
+    // Constructor - default
+    Passenger() {
+    }
+
+    // Constructor - full
+    Passenger(String pName, String pCruise, String pRoomType) {
+        passengerName = pName;
+        passengerCruise = pCruise;
+        passengerRoomType = pRoomType; // should be BAL, OV, STE, or INT
+    }
+
+    // Accessors
+    public String getPassengerName() {
+        return passengerName;
+    }
+
+    public String getPassengerCruise() {
+        return passengerCruise;
+    }
+
+    public String getPassengerRoomType() {
+        return passengerRoomType;
+    }
+
+    // Mutators
+    public void setPassengerName(String tVar) {
+        passengerName = tVar;
+    }
+
+    public void setPassengerCruise(String tVar) {
+        passengerCruise = tVar;
+    }
+
+    public void setPassengerRoomType(String tVar) {
+        passengerRoomType = tVar;
+    }
+
+    // print method
+    public void printPassenger() {
+        int spaceCount;
+        String spaces1 = "";
+        String spaces2 = "";
+        spaceCount = 20 - passengerName.length();
+        for (int i = 1; i <= spaceCount; i++) {
+            spaces1 = spaces1 + " ";
+        }
+        spaceCount = 20 - passengerCruise.length();
+        for (int i = 1; i <= spaceCount; i++) {
+            spaces2 = spaces2 + " ";
+        }
+
+        System.out.println(passengerName + spaces1 + passengerCruise + spaces2 +
+                passengerRoomType);
+    }
+
+    // method added to print passenger's name vice memory address
+    @Override
+    public String toString() {
+        return passengerName;
+    }
+
+}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+package com.Williford;
+public class Cruise {
+
+    // Instance Variables
+    private String cruiseName;
+    private String cruiseShipName;
+    private String departurePort;
+    private String destination;
+    private String returnPort;
+
+    // Constructor - default
+    Cruise() {
+    }
+
+    // Constructor - full
+    Cruise(String tCruiseName, String tShipName, String tDeparture, String tDestination, String tReturn) {
+        cruiseName = tCruiseName;
+        cruiseShipName = tShipName;
+        departurePort = tDeparture;
+        destination = tDestination;
+        returnPort = tReturn;
+    }
+
+    // Accessors
+    public String getCruiseName() {
+        return cruiseName;
+    }
+
+    public String getCruiseShipName() {
+        return cruiseShipName;
+    }
+
+    public String getDeparturePort() {
+        return departurePort;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public String getReturnPort() {
+        return returnPort;
+    }
+
+    // Mutators
+    public void setCruiseName(String tVar) {
+        cruiseName = tVar;
+    }
+
+    public void setCruiseShipName(String tVar) {
+        cruiseShipName = tVar;
+    }
+
+    public void setDeparturePort(String tVar) {
+        departurePort = tVar;
+    }
+
+    public void setDestination(String tVar) {
+        destination = tVar;
+    }
+
+    public void setReturnPort(String tVar) {
+        returnPort = tVar;
+    }
+
+    // print cruise details
+    public void printCruiseDetails() {
+
+        String spaceMarker = "";
+
+        String[] space = {"","","","",""};
+        int[] spaceCounter = new int[5];
+
+                spaceCounter[0] = 20 - cruiseName.length();
+                spaceCounter[1] = 20 - cruiseShipName.length();
+                spaceCounter[2] = 20 - departurePort.length();
+                spaceCounter[3] = 20 - destination.length();
+                spaceCounter[4] = 20 - returnPort.length();
+
+                for(int i = 0; i < space.length; ++i) {
+                    for(int s = 0; i < spaceCounter[i]; s++) {
+                        space[i] += " ";
+                    }
+                }
+        System.out.println(cruiseName + space[0] + cruiseShipName + space[1] + departurePort + space[2] + destination +
+                space[3] + returnPort + space[4]);
+
+
+    }
+
+    // method added to print ship's name vice memory address
+    @Override
+    public String toString() {
+        return cruiseName;
+    }
+}
+
